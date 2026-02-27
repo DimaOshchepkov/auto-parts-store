@@ -12,8 +12,8 @@ import { store } from '@/routes/register';
 export default function Register() {
     return (
         <AuthLayout
-            title="Create an account"
-            description="Enter your details below to create your account"
+            title="Вход"
+            description="Введите email и пароль, чтобы войти"
         >
             <Head title="Register" />
             <Form

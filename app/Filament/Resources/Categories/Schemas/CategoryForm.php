@@ -20,8 +20,7 @@ class CategoryForm
                 Select::make('parent_id')
                     ->relationship('parent', 'name')
                     ->searchable()
-                    ->preload()
-                    ->required(),
+                    ->preload(),
                 Toggle::make('is_active')
                     ->required(),
             ]);

@@ -15,13 +15,12 @@ createInertiaApp({
             import.meta.glob('./pages/**/*.tsx'),
         ),
     setup({ el, App, props }) {
-        const root = hydrateRoot(el, <App {...props} />);
-
-        root.render(
+        hydrateRoot(
+            el,
             <StrictMode>
                 <App {...props} />
-            </StrictMode>,
-        );
+            </StrictMode>
+        )
     },
     progress: {
         color: '#4B5563',

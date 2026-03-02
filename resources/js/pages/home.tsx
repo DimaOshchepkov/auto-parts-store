@@ -11,7 +11,6 @@ interface HomeProps {
 export default function Home({ products }: HomeProps) {
     return (
         <ShopLayout>
-            <>
                 <Head title="Главная" />
 
                 <section className="container mx-auto px-4 py-12">
@@ -27,7 +26,7 @@ export default function Home({ products }: HomeProps) {
                 </section>
 
                 <ProductGrid products={products} />
-            </>
+
         </ShopLayout>
     );
 }

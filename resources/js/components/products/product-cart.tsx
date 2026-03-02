@@ -1,4 +1,4 @@
-import ClientOnly from '@/components/client-only';
+import { Link } from '@inertiajs/react';
 import { ProductCarousel } from '@/components/products/product-carousel';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
+import { show as productShow } from '@/routes/products';
 import type { Product } from '@/types';
 
 interface ProductCardProps {
@@ -17,12 +18,9 @@ interface ProductCardProps {
 }
 
 export function ProductCard({ product }: ProductCardProps) {
-    // Используем реальные поля
     const title = product.name;
     const price = Number(product.price);
 
-    // Заглушки (пока в модели их нет)
-    const image = 'https://via.placeholder.com/600x600';
     const isNew = false;
     const discountPercent = 0;
 
@@ -31,21 +29,12 @@ export function ProductCard({ product }: ProductCardProps) {
 
     return (
         <Card className="group relative mx-auto w-full max-w-sm overflow-hidden rounded-2xl pt-0">
-            {/* Overlay */}
-            <div className="absolute inset-0 z-10 bg-black/30 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+            <div className="pointer-events-none absolute inset-0 z-10 bg-black/30 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
 
-            {/* Image */}
-            <div className="relative aspect-square overflow-hidden">
-                <ClientOnly>
-                    <ProductCarousel
-                        images={[
-                            image,
-                            'https://avatar.vercel.sh/shadcn1',
-                            'https://avatar.vercel.sh/shadcn2',
-                        ]}
-                    />
-                </ClientOnly>
-            </div>
+            <ProductCarousel
+                images={product.images}
+                href={productShow(product.slug).url}
+            />
 
             <CardHeader className="relative z-20">
                 <CardAction className="flex gap-2">
@@ -55,7 +44,16 @@ export function ProductCard({ product }: ProductCardProps) {
                     )}
                 </CardAction>
 
-                <CardTitle className="text-lg">{title}</CardTitle>
+                {/* Title (clickable) */}
+                <CardTitle className="text-lg">
+                    <Link
+                        href={productShow(product.slug)}
+                        className="hover:underline"
+                        prefetch
+                    >
+                        {title}
+                    </Link>
+                </CardTitle>
 
                 <CardDescription className="line-clamp-2">
                     {product.description}

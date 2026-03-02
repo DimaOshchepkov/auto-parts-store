@@ -1,0 +1,15 @@
+_HiStOrY_V2_
+App\134Models\134User::all();
+App\134Models\134User::truncate();
+App\134Models\134User::all();
+use\040App\134Models\134User;
+use\040App\134Models\134Role;
+use\040Illuminate\134Support\134Facades\134Hash;
+$adminRole\040=\040Role::where('name',\040'admin')->first();
+User::create([\012\040\040\040\040'name'\040=>\040'Admin',\012\040\040\040\040'email'\040=>\040'admin@example.com',\012\040\040\040\040'password'\040=>\040Hash::make('password'),\012\040\040\040\040'role_id'\040=>\040$adminRole->id,\012]);
+User::all();
+Role::all();
+User::where('email','admin@example.com')
+User::where('email','admin@example.com')->update(['role_id'\040=>\040Role::where('name','admin')->value('id')]);
+User::where('email','admin@example.com')
+User::where('email','admin@example.com')->get();

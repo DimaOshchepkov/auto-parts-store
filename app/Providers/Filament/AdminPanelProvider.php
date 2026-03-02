@@ -2,6 +2,7 @@
 
 namespace App\Providers\Filament;
 
+use Blade;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -10,6 +11,7 @@ use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\View\PanelsRenderHook;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -54,6 +56,32 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ])
+            ->renderHook(
+                PanelsRenderHook::HEAD_START,
+                fn(): string => Blade::render(<<<'BLADE'
+                      <script>
+                      (() => {
+                          const appearance = @js(auth()->user()?->appearance ?? request()->cookie('appearance', 'system'));
+
+                          localStorage.setItem('theme', appearance);
+                          window.dispatchEvent(new CustomEvent('theme-changed', { detail: appearance }));
+
+                            if (!window.__adminThemeSyncBound) {
+                              window.__adminThemeSyncBound = true;
+
+                              window.addEventListener('theme-changed', (event) => {
+                                  const next = event.detail;
+                                  if (localStorage.getItem('appearance') !== next) {
+                                      localStorage.setItem('appearance', next);
+                                      document.cookie = `appearance=${next};path=/;max-age=31536000;SameSite=Lax`;
+                                  }
+                              });
+                          }
+                      })();
+                      </script>
+                      BLADE
+                ),
+            );
     }
 }

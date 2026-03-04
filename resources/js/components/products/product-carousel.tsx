@@ -9,6 +9,7 @@ import {
     CarouselPrevious,
 } from '@/components/ui/carousel';
 import type { ProductImage } from '@/types';
+import { cn } from '@/lib/utils';
 
 type Variant = 'thumb' | 'large' | 'original';
 
@@ -70,64 +71,56 @@ export function ProductCarousel({
 
 
     return (
-        <Carousel
-            className={['relative w-full', className].filter(Boolean).join(' ')}
-        >
-            <CarouselContent>
-                {list.map((img, index) => (
-                    <CarouselItem key={img.id ?? index}>
-                        <div className="aspect-square overflow-hidden rounded-xl">
-                            {isClickable && hrefString ? (
-                                <Link
-                                    href={hrefString}
-                                    prefetch={prefetch}
-                                    className="block h-full w-full"
-                                    onClick={handleImageClick(index, img)}
-                                >
-                                    <img
-                                        src={pickSrc(img)}
-                                        alt={`Product image ${index + 1}`}
-                                        className="h-full w-full object-cover"
-                                        loading={index === 0 ? 'eager' : 'lazy'}
-                                        decoding="async"
-                                    />
-                                </Link>
-                            ) : (
-                                <button
-                                    type="button"
-                                    className={[
-                                        'block h-full w-full',
-                                        isClickable
-                                            ? 'cursor-pointer'
-                                            : 'cursor-default',
-                                    ].join(' ')}
-                                    onClick={handleImageClick(index, img)}
-                                    disabled={!isClickable}
-                                >
-                                    <img
-                                        src={pickSrc(img)}
-                                        alt={`Product image ${index + 1}`}
-                                        className="h-full w-full object-cover"
-                                        loading={index === 0 ? 'eager' : 'lazy'}
-                                        decoding="async"
-                                    />
-                                </button>
-                            )}
-                        </div>
-                    </CarouselItem>
-                ))}
-            </CarouselContent>
+      <Carousel className={cn('relative w-full', className)}>
+        <CarouselContent>
+          {list.map((img, index) => (
+            <CarouselItem key={img.id ?? index}>
+              <div className="aspect-square overflow-hidden rounded-xl">
+                {isClickable && hrefString ? (
+                  <Link
+                    href={hrefString}
+                    prefetch={prefetch}
+                    className="block h-full w-full"
+                    onClick={handleImageClick(index, img)}
+                  >
+                    <img
+                      src={pickSrc(img)}
+                      alt={`Product image ${index + 1}`}
+                      className="h-full w-full object-cover"
+                      loading={index === 0 ? 'eager' : 'lazy'}
+                      decoding="async"
+                    />
+                  </Link>
+                ) : (
+                  <button
+                    type="button"
+                    className={[
+                      'block h-full w-full',
+                      isClickable ? 'cursor-pointer' : 'cursor-default',
+                    ].join(' ')}
+                    onClick={handleImageClick(index, img)}
+                    disabled={!isClickable}
+                  >
+                    <img
+                      src={pickSrc(img)}
+                      alt={`Product image ${index + 1}`}
+                      className="h-full w-full object-cover"
+                      loading={index === 0 ? 'eager' : 'lazy'}
+                      decoding="async"
+                    />
+                  </button>
+                )}
+              </div>
+            </CarouselItem>
+          ))}
+        </CarouselContent>
 
-            {list.length > 1 && (
-                <>
-                    <CarouselPrevious
-                        className="absolute top-0! left-0! z-20 flex h-full w-12 translate-y-0! items-center justify-center border-0 bg-transparent opacity-10 shadow-none transition-opacity duration-300 group-hover:opacity-30 hover:opacity-50 disabled:opacity-0"
-                    />
-                    <CarouselNext
-                        className="absolute top-0! right-0! z-20 flex h-full w-12 translate-y-0! items-center justify-center border-0 bg-transparent opacity-10 shadow-none transition-opacity duration-300 group-hover:opacity-30 hover:opacity-50 disabled:opacity-10"
-                    />
-                </>
-            )}
-        </Carousel>
+        {list.length > 1 && (
+          <>
+            <CarouselPrevious className="absolute top-0! left-0! z-20 flex h-full w-12 translate-y-0! items-center justify-center border-0 bg-transparent opacity-10 shadow-none transition-opacity duration-300 group-hover:opacity-30 hover:opacity-50 disabled:opacity-0" />
+            <CarouselNext className="absolute top-0! right-0! z-20 flex h-full w-12 translate-y-0! items-center justify-center border-0 bg-transparent opacity-10 shadow-none transition-opacity duration-300 group-hover:opacity-30 hover:opacity-50 disabled:opacity-10" />
+          </>
+        )}
+      </Carousel>
     );
 }

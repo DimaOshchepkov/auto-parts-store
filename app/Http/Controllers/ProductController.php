@@ -20,6 +20,7 @@ class ProductController extends Controller
                 'name' => $product->name,
                 'price' => (string) $product->price,
                 'description' => $product->description,
+                'images' => $product->images,
             ],
         ]);
     }

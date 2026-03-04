@@ -17,6 +17,7 @@ class Product extends Model implements HasMedia
     use InteractsWithMedia;
     use HasFactory;
 
+
     public function registerMediaCollections(): void
     {
         $this->addMediaCollection('images')

@@ -1,6 +1,9 @@
 <?php
 
+use App\Http\Controllers\Api\CartApiController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\PageController;
+use App\Http\Middleware\EnsureCartToken;
 use App\Models\Product;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
@@ -13,19 +16,9 @@ Route::get('/products/{slug}', [ProductController::class, 'show'])
     ->name('products.show');
 
 
-Route::get('/login', function () {
-    return Inertia::render('auth/login');
-})->name('login');
-
-Route::get('/register', function () {
-    return Inertia::render('auth/register');
-})->name('register');
-
-Route::get('/', function () {
-    return Inertia::render('home', [
-        'products' => Product::with('media')->latest()->get(),
-    ]);
-});
+Route::get('/', [PageController::class, 'home'])->name('home');
+Route::get('/login', [PageController::class, 'login'])->name('login');
+Route::get('/register', [PageController::class, 'register'])->name('register');
 
 
 
@@ -36,5 +29,13 @@ Route::prefix('cart')->name('cart.')->group(function () {
     Route::patch('/items/{product}', [CartController::class, 'update'])->name('items.update');
     Route::delete('/items/{product}', [CartController::class, 'destroy'])->name('items.destroy');
 });
+
+Route::prefix('api')
+    ->name('api.')
+    ->middleware(EnsureCartToken::class)
+    ->group(function () {
+        Route::get('/cart/items', CartApiController::class)
+            ->name('cart.items');
+    });
 
 require __DIR__.'/settings.php';

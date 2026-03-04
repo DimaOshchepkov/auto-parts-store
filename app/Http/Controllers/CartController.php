@@ -13,7 +13,7 @@ class CartController extends Controller
     {
         $c = $cart->current()->load(['items.product']);
 
-        return Inertia::render('product-cart', [
+        return Inertia::render('cart-show', [
             'cart' => $c,
         ]);
     }

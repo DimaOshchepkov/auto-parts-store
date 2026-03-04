@@ -16,28 +16,42 @@ readonly class CartService
 {
     public function __construct(private Request $request) {}
 
-    private function cacheKeyCount(): string
+
+    public function forgetCartCache(): void
+    {
+        Cache::forget($this->cacheKey('count'));
+        Cache::forget($this->cacheKey('items'));
+        Cache::forget($this->cacheKey('summary')); // если сделаешь summary
+    }
+
+    private function forgetCacheBy(string $identity): void
+    {
+        Cache::forget("cart:count:$identity");
+        Cache::forget("cart:items:$identity");
+        Cache::forget("cart:summary:$identity");
+    }
+
+    private function identity(): string
     {
         if (Auth::check()) {
-            return 'cart:count:user:' . Auth::id();
+            return 'user:' . Auth::id();
         }
 
         $token = $this->request->attributes->get(EnsureCartToken::COOKIE_NAME)
             ?? $this->request->cookie(EnsureCartToken::COOKIE_NAME);
 
         if (! $token) {
-            throw new \RuntimeException(
-                'Cart token is missing. Ensure EnsureCartToken middleware is applied to this route.'
-            );
+            throw new \RuntimeException('Cart token is missing. Ensure EnsureCartToken middleware is applied.');
         }
 
-        return 'cart:count:token:' . $token;
+        return 'token:' . $token;
     }
 
-    public function forgetCountCache(): void
+    private function cacheKey(string $suffix): string
     {
-        Cache::forget($this->cacheKeyCount());
+        return 'cart:' . $suffix . ':' . $this->identity();
     }
+
 
     public function current(): Cart
     {
@@ -93,8 +107,8 @@ readonly class CartService
             ]);
         });
 
-        $this->forgetCountCache();
-        return $cart->load('items');
+        $this->forgetCartCache();
+        return $cart->load('items.product');
     }
 
     public function updateQuantity(int $productId, int $qty): Cart
@@ -115,6 +129,8 @@ readonly class CartService
             ->where('product_id', $productId)
             ->update(['quantity' => $qty]);
 
+        $this->forgetCartCache();
+
         return $cart->load('items');
     }
 
@@ -127,6 +143,7 @@ readonly class CartService
             ->where('product_id', $productId)
             ->delete();
 
+        $this->forgetCartCache();
         return $cart->load('items');
     }
 
@@ -141,7 +158,7 @@ readonly class CartService
             return;
         }
         // Сбросим гостевой кэш по токену (явно)
-        Cache::forget('cart:count:token:' . $token);
+        $this->forgetCacheBy('token:' . $token);
 
         $guestCart = Cart::query()
             ->where('token', $token)
@@ -185,15 +202,33 @@ readonly class CartService
 
         Cookie::queue(Cookie::forget(EnsureCartToken::COOKIE_NAME));
 
-        Cache::forget('cart:count:user:' . Auth::id());
+        $this->forgetCacheBy('user:' . Auth::id());
         // Удаляем токен из текущего Request
         $this->request->attributes->remove(EnsureCartToken::COOKIE_NAME);
         $this->request->cookies->remove(EnsureCartToken::COOKIE_NAME);
     }
 
+    public function itemsDto(): array
+    {
+        $key = $this->cacheKey('items');
+
+        return Cache::remember($key, now()->addMinutes(5), function () {
+            $cart = $this->current()->load([
+                'items:id,cart_id,product_id,quantity',
+                'items.product:id,name,slug,price', // добавь нужные поля
+            ]);
+
+            return $cart->items->map(fn ($item) => [
+                'product_id' => (int) $item->product_id,
+                'qty' => (int) $item->quantity,
+                'product' => $item->product,
+            ])->values()->all();
+        });
+    }
+
     public function count(): int
     {
-        $key = $this->cacheKeyCount();
+        $key = $this->cacheKey('count');
 
         return Cache::remember($key, now()->addMinutes(5), function () {
             $cart = $this->current()->load('items:id,cart_id,quantity');

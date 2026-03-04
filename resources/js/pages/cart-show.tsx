@@ -7,7 +7,6 @@ import { Input } from '@/components/ui/input';
 import { Separator } from '@/components/ui/separator';
 import ShopLayout from '@/layouts/shop/shop-layout';
 
-import { show as cartShow } from '@/routes/cart';
 import {
     update as cartItemsUpdate,
     destroy as cartItemsDestroy,
@@ -63,7 +62,7 @@ export default function CartShow({ cart }: { cart: Cart }) {
         timersRef.current[productId] = window.setTimeout(() => {
             router.patch(
                 cartItemsUpdate({ product: productId }),
-                { quantity: nextQty }, // <-- подставь имя поля, которое ожидает твой контроллер
+                { qty: nextQty },
                 {
                     preserveScroll: true,
                     preserveState: true,
@@ -101,13 +100,6 @@ export default function CartShow({ cart }: { cart: Cart }) {
     return (
         <ShopLayout>
             <div className="mx-auto w-full max-w-6xl px-4 py-8">
-                <div className="flex items-center justify-between">
-                    <h1 className="text-2xl font-semibold">Корзина</h1>
-                    <Button variant="ghost" size="sm" asChild>
-                        <Link href={cartShow()}>Обновить</Link>
-                    </Button>
-                </div>
-
                 {cart.items.length === 0 ? (
                     <Card className="mt-8">
                         <CardContent className="py-10 text-center">
@@ -127,8 +119,7 @@ export default function CartShow({ cart }: { cart: Cart }) {
                                     product?.name ??
                                     `Товар #${item.product_id}`;
 
-                                const price = Number(
-                                    item.price_snapshot ?? product?.price ?? 0,
+                                const price = Number(product?.price ?? 0,
                                 );
                                 const lineTotal = price * item.quantity;
 
@@ -155,7 +146,7 @@ export default function CartShow({ cart }: { cart: Cart }) {
                                                     </Link>
 
                                                     <p className="mt-1 text-sm text-muted-foreground">
-                                                        Цена: {price.toFixed(2)}
+                                                        Цена: {price}
                                                     </p>
                                                 </div>
 
@@ -181,7 +172,6 @@ export default function CartShow({ cart }: { cart: Cart }) {
                                                             inputMode="numeric"
                                                             value={qty}
                                                             onChange={(e) => {
-                                                                // позволяем вводить, но сразу нормализуем
                                                                 const v =
                                                                     Number(
                                                                         e.target
@@ -193,7 +183,7 @@ export default function CartShow({ cart }: { cart: Cart }) {
                                                                 );
                                                             }}
                                                             onBlur={() => {
-                                                                // на blur гарантированно докрутим clamp (если вдруг)
+
                                                                 setQtyLocalAndSync(
                                                                     item.product_id,
                                                                     qty,
@@ -220,9 +210,7 @@ export default function CartShow({ cart }: { cart: Cart }) {
                                                             Сумма
                                                         </div>
                                                         <div className="text-base font-semibold">
-                                                            {lineTotal.toFixed(
-                                                                2,
-                                                            )}
+                                                            {lineTotal}
                                                         </div>
                                                     </div>
 
@@ -271,7 +259,7 @@ export default function CartShow({ cart }: { cart: Cart }) {
                                         Сумма
                                     </span>
                                     <span className="font-semibold">
-                                        {subtotal.toFixed(2)}
+                                        {subtotal}
                                     </span>
                                 </div>
 

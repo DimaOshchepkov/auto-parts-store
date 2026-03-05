@@ -1,109 +1,132 @@
-// resources/js/pages/shop/product-show.tsx
 import * as React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
-    Card,
-    CardContent,
-    CardFooter,
-    CardHeader,
-    CardTitle,
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import ShopLayout from '@/layouts/shop/shop-layout';
+import { useCartStore } from '@/store/cart-store';
 import type { Product } from '@/types';
 
 
-
 type Props = {
-    product: Product;
+  product: Product;
 };
 
 export default function ProductShow({ product }: Props) {
-    return (
-      <ShopLayout>
-        <div className="mx-auto w-full max-w-5xl px-4 py-8">
-          <div className="grid gap-6 lg:grid-cols-[1.3fr_0.7fr]">
-            {/* Левая часть: основная карточка */}
+  const qty = useCartStore((s) => s.qtyByProduct[product.id] ?? 0);
+  const inc = useCartStore((s) => s.inc);
+  const setQty = useCartStore((s) => s.setQty);
 
-            <Card className="overflow-hidden">
-              <CardHeader className="space-y-2">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <CardTitle className="text-2xl">{product.name}</CardTitle>
-                  <Badge variant="secondary" className="text-base">
-                    {Number(product.price)} руб.
-                  </Badge>
-                </div>
-                <Separator />
-              </CardHeader>
+  const addToCart = React.useCallback(() => {
+    if (qty > 0) {
+      inc(product.id);
+    } else {
+      setQty(product.id, 1);
+    }
+  }, [qty, inc, setQty, product.id]);
 
-              <CardContent className="space-y-4">
-                <div className="group @container relative mx-auto w-full overflow-hidden rounded-xl border">
-                  {/* Размытый фон */}
-                  <img
-                    src={product.images[0].large_webp ?? product.images[0].url}
-                    alt=""
-                    aria-hidden
-                    className="absolute inset-0 h-full w-full scale-110 object-cover opacity-40 blur-3xl"
-                  />
+  return (
+    <ShopLayout>
+      <div className="mx-auto w-full max-w-5xl px-4 py-8">
+        <div className="grid gap-6 lg:grid-cols-[1.3fr_0.7fr]">
+          {/* Левая часть */}
+          <Card className="overflow-hidden">
+            <CardHeader className="space-y-2">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <CardTitle className="text-2xl">{product.name}</CardTitle>
+                <Badge variant="secondary" className="text-base">
+                  {Number(product.price)} руб.
+                </Badge>
+              </div>
+              <Separator />
+            </CardHeader>
 
-                  {/* Основная картинка */}
-                  <img
-                    src={product.images[0].large_webp ?? product.images[0].url}
-                    alt={product.name}
-                    className="relative mx-auto h-auto w-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105 @min-[420px]:h-[420px] @min-[420px]:w-auto"
-                  />
-                </div>
+            <CardContent className="space-y-4">
+              <div className="group @container relative mx-auto w-full overflow-hidden rounded-xl border">
+                <img
+                  src={product.images[0].large_webp ?? product.images[0].url}
+                  alt=""
+                  aria-hidden
+                  className="absolute inset-0 h-full w-full scale-110 object-cover opacity-40 blur-3xl"
+                />
 
-                <div className="space-y-2">
-                  <h3 className="text-lg font-semibold">Описание</h3>
-                  <p className="text-sm leading-6 whitespace-pre-line text-muted-foreground">
-                    {product.description}
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+                <img
+                  src={product.images[0].large_webp ?? product.images[0].url}
+                  alt={product.name}
+                  className="relative mx-auto h-auto w-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105 @min-[420px]:h-[420px] @min-[420px]:w-auto"
+                />
+              </div>
 
-            {/* Правая часть: сайдбар покупки */}
-            <Card className="h-fit">
-              <CardHeader className="space-y-1">
-                <CardTitle className="text-lg">Покупка</CardTitle>
-                <p className="text-sm text-muted-foreground">
-                  Быстро добавь товар в корзину и оформи заказ.
+              <div className="space-y-2">
+                <h3 className="text-lg font-semibold">Описание</h3>
+                <p className="text-sm leading-6 whitespace-pre-line text-muted-foreground">
+                  {product.description}
                 </p>
-              </CardHeader>
+              </div>
+            </CardContent>
+          </Card>
 
-              <CardContent className="space-y-4">
-                <div className="rounded-xl border p-4">
-                  <div className="flex items-baseline justify-between gap-3">
-                    <span className="text-sm text-muted-foreground">Цена</span>
-                    <span className="text-xl font-semibold">
-                      {Number(product.price)}
-                    </span>
-                  </div>
-                  <Separator className="my-3" />
-                  <div className="flex items-center justify-between gap-3">
-                    <span className="text-sm text-muted-foreground">ID</span>
-                    <span className="font-mono text-sm">{product.id}</span>
-                  </div>
+          {/* Правая часть */}
+          <Card className="h-fit">
+            <CardHeader className="space-y-1">
+              <CardTitle className="text-lg">Покупка</CardTitle>
+              <p className="text-sm text-muted-foreground">
+                Быстро добавь товар в корзину и оформи заказ.
+              </p>
+            </CardHeader>
+
+            <CardContent className="space-y-4">
+              <div className="rounded-xl border p-4">
+                <div className="flex items-baseline justify-between gap-3">
+                  <span className="text-sm text-muted-foreground">Цена</span>
+                  <span className="text-xl font-semibold">
+                    {Number(product.price)}
+                  </span>
                 </div>
 
-                <div className="grid gap-2">
-                  <Button className="w-full">В корзину</Button>
-                  <Button variant="outline" className="w-full">
-                    В избранное
-                  </Button>
-                </div>
-              </CardContent>
+                <Separator className="my-3" />
 
-              <CardFooter>
-                <p className="text-xs text-muted-foreground">
-                  Оплата и доставка будут уточнены на шаге оформления.
-                </p>
-              </CardFooter>
-            </Card>
-          </div>
+                <div className="flex items-center justify-between gap-3">
+                  <span className="text-sm text-muted-foreground">ID</span>
+                  <span className="font-mono text-sm">{product.id}</span>
+                </div>
+
+                {qty > 0 && (
+                  <>
+                    <Separator className="my-3" />
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-muted-foreground">В корзине</span>
+                      <span className="font-semibold">{qty} шт.</span>
+                    </div>
+                  </>
+                )}
+              </div>
+
+              <div className="grid gap-2">
+                <Button className="w-full" onClick={addToCart}>
+                  {qty > 0 ? 'Добавить ещё' : 'В корзину'}
+                </Button>
+
+                <Button variant="outline" className="w-full">
+                  В избранное
+                </Button>
+              </div>
+            </CardContent>
+
+            <CardFooter>
+              <p className="text-xs text-muted-foreground">
+                Оплата и доставка будут уточнены на шаге оформления.
+              </p>
+            </CardFooter>
+          </Card>
         </div>
-      </ShopLayout>
-    );
+      </div>
+    </ShopLayout>
+  );
 }

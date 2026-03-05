@@ -26,7 +26,6 @@ export default function Home({ products }: HomeProps) {
                 </section>
 
                 <ProductGrid products={products} />
-
         </ShopLayout>
     );
 }

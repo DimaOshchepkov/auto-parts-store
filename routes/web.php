@@ -30,12 +30,5 @@ Route::prefix('cart')->name('cart.')->group(function () {
     Route::delete('/items/{product}', [CartController::class, 'destroy'])->name('items.destroy');
 });
 
-Route::prefix('api')
-    ->name('api.')
-    ->middleware(EnsureCartToken::class)
-    ->group(function () {
-        Route::get('/cart/items', CartApiController::class)
-            ->name('cart.items');
-    });
 
 require __DIR__.'/settings.php';
